@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Christian Baehr" />
+
+<meta name="date" content="2024-03-22" />
+
+<title>stylest2 vignette</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">stylest2 vignette</h1>
+<h4 class="author">Christian Baehr</h4>
+<h4 class="date">2024-03-22</h4>
+
+
+
+<div id="about-stylest2" class="section level1">
+<h1>About <code>stylest2</code></h1>
+<p>This vignette describes the usage of <code>stylest2</code> for
+estimating speaker (author) style distinctiveness.</p>
+<div id="installation" class="section level3">
+<h3>Installation</h3>
+<p>The dev version of <code>stylest2</code> on GitHub may be installed
+with:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;devtools&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;ArthurSpirling/stylest2&quot;</span>)</span></code></pre></div>
+</div>
+<div id="load-the-package" class="section level3">
+<h3>Load the package</h3>
+<p><code>stylest2</code> is built to interface with
+<code>quanteda</code>. A <code>quanteda</code> <code>dfm</code> object
+is required to fit a model in <code>stylest2</code>, so we recommend
+installing <code>quanteda</code> as well.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(stylest2)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; Package version: 3.3.1</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; Unicode version: 14.0</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; ICU version: 71.1</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; Parallel computing: 8 of 8 threads used.</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; See https://quanteda.io for tutorials and examples.</span></span></code></pre></div>
+</div>
+</div>
+<div id="example-fitting-a-model-to-english-novels" class="section level1">
+<h1>Example: Fitting a model to English novels</h1>
+<div id="dfm" class="section level2">
+<h2>dfm</h2>
+<p>We will be using texts of the first lines of novels by Jane Austen,
+George Eliot, and Elizabeth Gaskell. Excerpts were obtained from the
+full texts of novels available on Project Gutenberg: <a href="http://gutenberg.org" class="uri">http://gutenberg.org</a>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">data</span>(novels)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="0%" />
+<col width="2%" />
+<col width="2%" />
+<col width="94%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">title</th>
+<th align="left">author</th>
+<th align="left">text</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">A Dark Night’s Work</td>
+<td align="left">Gaskell, Elizabeth Cleghorn</td>
+<td align="left">In the county town of a certain shire there lived
+(about forty years ago) one Mr. Wilkins, a conveyancing attorney of
+considerable standing. The certain shire was but a small county, and the
+principal town in it contained only about four thousand inhabitants; so
+in saying that Mr. Wilkins was the principal lawyer in Hamley, I say
+very little, unless I add that he transacted all the legal business of
+the gentry for twenty miles round. His grandfather had established the
+connection; his father had consolidated and strengthened it, and,
+indeed, by his wise and upright conduct, as well as by his professional
+skill, had obtained for himself the position of confidential friend to
+many of the surrounding families of distinction.</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="left">Brother Jacob</td>
+<td align="left">Eliot, George</td>
+<td align="left">Among the many fatalities attending the bloom of young
+desire, that of blindly taking to the confectionery line has not,
+perhaps, been sufficiently considered. How is the son of a British
+yeoman, who has been fed principally on salt pork and yeast dumplings,
+to know that there is satiety for the human stomach even in a paradise
+of glass jars full of sugared almonds and pink lozenges, and that the
+tedium of life can reach a pitch where plum-buns at discretion cease to
+offer the slightest excitement? Or how, at the tender age when a
+confectioner seems to him a very prince whom all the world must envy–who
+breakfasts on macaroons, dines on meringues, sups on twelfth-cake, and
+fills up the intermediate hours with sugar-candy or peppermint–how is he
+to foresee the day of sad wisdom, when he will discern that the
+confectioner’s calling is not socially influential, or favourable to a
+soaring ambition?</td>
+</tr>
+<tr class="odd">
+<td align="left">8</td>
+<td align="left">Emma</td>
+<td align="left">Austen, Jane</td>
+<td align="left">Emma Woodhouse, handsome, clever, and rich, with a
+comfortable home and happy disposition, seemed to unite some of the best
+blessings of existence; and had lived nearly twenty-one years in the
+world with very little to distress or vex her. She was the youngest of
+the two daughters of a most affectionate, indulgent father; and had, in
+consequence of her sister’s marriage, been mistress of his house from a
+very early period. Her mother had died too long ago for her to have more
+than an indistinct remembrance of her caresses; and her place had been
+supplied by an excellent woman as governess, who had fallen little short
+of a mother in affection. Sixteen years had Miss Taylor been in
+Mr. Woodhouse’s family, less as a governess than a friend, very fond of
+both daughters, but particularly of Emma. Between <em>them</em> it was
+more the intimacy of sisters.</td>
+</tr>
+</tbody>
+</table>
+<p>The data should be transformed into a <code>quanteda</code>
+<code>dfm</code> object. It should also include a document variable
+(<code>docvar</code>) entitled “author”.</p>
+<p>The corpus should have at least one variable by which the texts can
+be grouped — the most common examples are a “speaker” or “author”
+attribute. Here, we will use <code>novels$author</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>novels_tok <span class="ot">&lt;-</span> <span class="fu">tokens</span>(novels<span class="sc">$</span>text)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>novels_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(novels_tok)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">unique</span>(novels<span class="sc">$</span>author)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Gaskell, Elizabeth Cleghorn&quot; &quot;Eliot, George&quot;              </span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; [3] &quot;Austen, Jane&quot;</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="fu">docvars</span>(novels_dfm)[<span class="st">&quot;author&quot;</span>] <span class="ot">&lt;-</span> novels<span class="sc">$</span>author</span></code></pre></div>
+<p>Tokenization selections can be passed to the <code>tokens()</code>
+function prior to generating a document-feature matrix; see the
+<code>quanteda</code> package for more information about
+<code>tokens()</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>novels_tok <span class="ot">&lt;-</span> <span class="fu">tokens</span>(novels<span class="sc">$</span>text, </span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>                     <span class="at">remove_punct =</span> T,</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>                     <span class="at">remove_symbols =</span> T,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                     <span class="at">remove_numbers =</span> T,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>                     <span class="at">remove_separators =</span> T,</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>                     <span class="at">split_hyphens =</span> T)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>novels_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(novels_tok)</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="fu">unique</span>(novels<span class="sc">$</span>author)</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Gaskell, Elizabeth Cleghorn&quot; &quot;Eliot, George&quot;              </span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; [3] &quot;Austen, Jane&quot;</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="fu">docvars</span>(novels_dfm)[<span class="st">&quot;author&quot;</span>] <span class="ot">&lt;-</span> novels<span class="sc">$</span>author</span></code></pre></div>
+</div>
+<div id="using-stylest2_select_vocab" class="section level2">
+<h2>Using <code>stylest2_select_vocab</code></h2>
+<p>This function uses n-fold cross-validation to identify the set of
+terms that maximizes the model’s rate of predicting the speakers of
+out-of-sample texts. For those unfamiliar with cross-validation, the
+technical details follow:</p>
+<ul>
+<li>The terms of the raw vocabulary are ordered by frequency.</li>
+<li>A subset of the raw vocabulary above a frequency percentile is
+selected; e.g. terms above the 50th percentile are those which occur
+more frequently than the median term in the raw vocabulary.</li>
+<li>The corpus is divided into n folds.</li>
+<li>One of these folds is held out and the model is fit using the
+remaining n-1 folds. The model is then used to predict the speakers of
+texts in the held-out fold. (This step is repeated n times.)</li>
+<li>The mean prediction rate for models using this vocabulary
+(percentile) is calculated.</li>
+</ul>
+<p>(Vocabulary selection is optional; the model can be fit using all the
+terms in the support of the corpus.)</p>
+<p>Setting the seed before this step, to ensure reproducible runs, is
+recommended:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span></code></pre></div>
+<p>Below are examples of <code>stylest2_select_vocab</code> using the
+defaults and with custom parameters:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>vocab_with_defaults <span class="ot">&lt;-</span> <span class="fu">stylest2_select_vocab</span>(<span class="at">dfm =</span> novels_dfm)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>vocab_custom <span class="ot">&lt;-</span> <span class="fu">stylest2_select_vocab</span>(<span class="at">dfm =</span> novels_dfm, </span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>                                      <span class="at">smoothing =</span> <span class="dv">1</span>, </span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>                                      <span class="at">nfold =</span> <span class="dv">10</span>, </span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>                                      <span class="at">cutoffs =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">75</span>, <span class="dv">99</span>))</span></code></pre></div>
+<p>Let’s look inside the <code>vocab_with_defaults</code> object.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Percentile with best prediction rate</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>vocab_with_defaults<span class="sc">$</span>cutoff_pct_best</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; [1] 90</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co"># Rate of INCORRECTLY predicted speakers of held-out texts</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>vocab_with_defaults<span class="sc">$</span>cv_missrate_results</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt;   50% 60% 70%      80%      90%      99%</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; 1 100 100 100 66.66667 66.66667 66.66667</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; 2  60  60  60 60.00000 20.00000 60.00000</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; 3 100 100 100 75.00000 50.00000 50.00000</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; 4 100 100 100 60.00000 60.00000 40.00000</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; 5  50  50  50 50.00000 50.00000 50.00000</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co"># Data on the setup:</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co"># Percentiles tested</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>vocab_with_defaults<span class="sc">$</span>cutoff_candidates</span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; [1] 50 60 70 80 90 99</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co"># Number of folds</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>vocab_with_defaults<span class="sc">$</span>nfold</span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span></code></pre></div>
+</div>
+<div id="fitting-a-model" class="section level2">
+<h2>Fitting a model</h2>
+<div id="using-a-percentile-to-select-terms" class="section level3">
+<h3>Using a percentile to select terms</h3>
+<p>With the best percentile identified as 90 percent, we can select the
+terms above that percentile to use in the model. Be sure to use the same
+<code>text_filter</code> here as in the previous step.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>terms_90 <span class="ot">&lt;-</span> <span class="fu">stylest2_terms</span>(<span class="at">dfm =</span> novels_dfm, <span class="at">cutoff =</span> <span class="dv">90</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; Warning in stylest2_terms(dfm = novels_dfm, cutoff = 90): Detected multiple</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; texts with the same author. Collapsing to author-level dfm for stylest2_fit()</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; function.</span></span></code></pre></div>
+</div>
+<div id="fitting-the-model-basic" class="section level3">
+<h3>Fitting the model: basic</h3>
+<p>Below, we fit the model using the terms above the 90th percentile,
+using the same <code>text_filter</code> as before, and leaving the
+smoothing value for term frequencies as the default
+<code>0.5</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">stylest2_fit</span>(<span class="at">dfm =</span> novels_dfm, <span class="at">terms =</span> terms_90)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; Warning in fit_term_usage(dfm = dfm, smoothing = smoothing, terms = terms, :</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; Detected multiple texts with the same author. Collapsing to author-level dfm</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt; for stylest2_fit() function.</span></span></code></pre></div>
+<p>The model contains detailed information about token usage by each of
+the authors (see <code>mod$rate</code>); exploring this is left as an
+exercise.</p>
+</div>
+<div id="fitting-the-model-adding-custom-term-weights" class="section level3">
+<h3>Fitting the model: adding custom term weights</h3>
+<p>A new feature is the option to specify custom term weights, in the
+form of a dataframe. The intended use case is the mean cosine distance
+from the embedding representation of the word to all other words in the
+vocabulary, but the weights can be anything desired by the user.</p>
+<p>An example <code>term_weights</code> is shown below. When this
+argument is passed to <code>stylest_fit()</code>, the weights for terms
+in the model vocabulary will be extracted. Any term not included in
+<code>term_weights</code> will be assigned a default weight of 0.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>term_weights <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.001</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">names</span>(term_weights) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;the&quot;</span>, <span class="st">&quot;and&quot;</span>, <span class="st">&quot;Floccinaucinihilipilification&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>term_weights</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt;                           the                           and </span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt;                         0.100                         0.200 </span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; Floccinaucinihilipilification </span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt;                         0.001</span></span></code></pre></div>
+<p>Below is an example of fitting the model with
+<code>term_weights</code>:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">stylest2_fit</span>(<span class="at">dfm =</span> novels_dfm,  <span class="at">terms =</span> terms_90, <span class="at">term_weights =</span> term_weights)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt; Warning in fit_term_usage(dfm = dfm, smoothing = smoothing, terms = terms, :</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co">#&gt; Detected multiple texts with the same author. Collapsing to author-level dfm</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; for stylest2_fit() function.</span></span></code></pre></div>
+<p>The weights are stored in <code>mod$term_weights</code>.</p>
+</div>
+</div>
+<div id="using-the-model" class="section level2">
+<h2>Using the model</h2>
+<p>By default, <code>stylest_predict()</code> returns the posterior
+probabilities of authorship for each prediction text.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>predictions <span class="ot">&lt;-</span> <span class="fu">stylest2_predict</span>(<span class="at">dfm =</span> novels_dfm, <span class="at">model =</span> mod)</span></code></pre></div>
+<p><code>stylest_predict()</code> can optionally return the log odds of
+authorship for each speaker over each text, as well as the average
+contribution of each term in the model to speaker distinctiveness.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>predictions <span class="ot">&lt;-</span> <span class="fu">stylest2_predict</span>(<span class="at">dfm =</span> novels_dfm, <span class="at">model =</span> mod,</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>                                <span class="at">speaker_odds =</span> <span class="cn">TRUE</span>, <span class="at">term_influence =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>We can examine the mean log odds that Jane Austen wrote <em>Pride and
+Prejudice</em> (in-sample).</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># Pride and Prejudice</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>novels<span class="sc">$</span>text[<span class="dv">14</span>]</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; [1] &quot;It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife. However little known the feelings or views of such a man may be on his first entering a neighbourhood, this truth is so well fixed in the minds of the surrounding families, that he is considered the rightful property of some one or other of their daughters. \&quot;My dear Mr. Bennet,\&quot; said his lady to him one day, \&quot;have you heard that Netherfield Park is let at last?\&quot; Mr. Bennet replied that he had not. \&quot;But it is,\&quot; returned she; \&quot;for Mrs. Long has just been here, and she told me all about it.\&quot; Mr. Bennet made no answer. \&quot;Do you not want to know who has taken it?\&quot; cried his wife impatiently. \&quot;_You_ want to tell me, and I have no objection to hearing it.\&quot; This was invitation enough.&quot;</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>predictions<span class="sc">$</span>speaker_odds<span class="sc">$</span>log_odds_mean[<span class="dv">14</span>]</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt;     text14 </span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; 0.02689195</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a>predictions<span class="sc">$</span>speaker_odds<span class="sc">$</span>log_odds_se[<span class="dv">14</span>]</span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt;     text14 </span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; 0.01669951</span></span></code></pre></div>
+<div id="predicting-the-speaker-of-a-new-text" class="section level3">
+<h3>Predicting the speaker of a new text</h3>
+<p>In this example, the model is used to predict the speaker of a new
+text, in this case <em>Northanger Abbey</em> by Jane Austen.</p>
+<p>Note that a <code>prior</code> may be specified, and may be useful
+for handling texts containing out-of-sample terms. Here, we do not
+specify a prior, so a uniform prior is used.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>na_text <span class="ot">&lt;-</span> <span class="st">&quot;No one who had ever seen Catherine Morland in her infancy would have supposed </span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="st">            her born to be an heroine. Her situation in life, the character of her father </span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="st">            and mother, her own person and disposition, were all equally against her. Her </span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="st">            father was a clergyman, without being neglected, or poor, and a very respectable </span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="st">            man, though his name was Richard—and he had never been handsome. He had a </span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="st">            considerable independence besides two good livings—and he was not in the least </span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="st">            addicted to locking up his daughters.&quot;</span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>na_text_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(<span class="fu">tokens</span>(na_text))</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">stylest2_predict</span>(<span class="at">dfm =</span> na_text_dfm, <span class="at">model =</span> mod)</span></code></pre></div>
+<p>Viewing the result, and recovering the log probabilities calculated
+for each speaker, is simple:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>pred<span class="sc">$</span>posterior<span class="sc">$</span>predicted</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Austen, Jane&quot;</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>pred<span class="sc">$</span>posterior<span class="sc">$</span>log_probs</span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt; 1 x 3 Matrix of class &quot;dgeMatrix&quot;</span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt;       Austen, Jane Eliot, George Gaskell, Elizabeth Cleghorn</span></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="co">#&gt; text1   -0.1478721     -6.999755                    -1.99109</span></span></code></pre></div>
+<p>The terms with the highest mean influence can be obtained:</p>
+<pre><code>#&gt; [1] &quot;the&quot; &quot;of&quot;  &quot;i&quot;   &quot;was&quot; &quot;her&quot; &quot;his&quot;</code></pre>
+<p>And the least influential terms:</p>
+<pre><code>#&gt; [1] &quot;him&quot;   &quot;three&quot; &quot;days&quot;  &quot;know&quot;  &quot;much&quot;  &quot;from&quot;</code></pre>
+</div>
+</div>
+<div id="issues" class="section level2">
+<h2>Issues</h2>
+<p>Please submit any bugs, error reports, etc. on GitHub at: <a href="https://github.com/ArthurSpirling/stylest2/issues" class="uri">https://github.com/ArthurSpirling/stylest2/issues</a>.</p>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
